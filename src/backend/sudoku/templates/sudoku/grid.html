@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+<head>
+    <meta charset="UTF-8">
+    <title>Killer Sudoku</title>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="{% static 'js/htmx-arrow-nav.js' %}"></script>
+    <script src="{% static 'js/htmx-clear-cell.js' %}"></script>
+</head>
+<body>
+    <div class="ks-container">
+        <div class="ks-controls">
+            <button id="toggle-mode"
+                aria-pressed="{{ note_mode|yesno:'true,false' }}"
+                aria-label="Toggle note mode"
+                hx-post="/toggle_note_mode/"
+                hx-target=".ks-grid"
+                hx-swap="outerHTML">
+                {% if note_mode %}Note Mode ✏️{% else %}Number Mode 1️⃣{% endif %}
+            </button>
+        </div>
+        {% include 'sudoku/grid_inner.html' %}
+    </div>
+</body>
+</html>

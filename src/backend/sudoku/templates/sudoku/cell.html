@@ -1,0 +1,13 @@
+<div id="cell-{{row_idx}}-{{col_idx}}"
+     class="ks-cell{% if selected.0 == row_idx and selected.1 == col_idx %} ks-cell-selected{% endif %}"
+     role="gridcell" tabindex="0"
+     hx-get="/select/{{ row_idx }}/{{ col_idx }}/" 
+     hx-target="#cell-{{row_idx}}-{{col_idx}}" 
+     hx-swap="outerHTML">
+    <div class="ks-final">{% if cell.final %}{{ cell.final }}{% endif %}</div>
+    <div class="ks-notes">
+        {% for n in notes_range %}
+        <span class="ks-note n{{n}}">{% if n in cell.notes %}{{n}}{% endif %}</span>
+        {% endfor %}
+    </div>
+</div>
