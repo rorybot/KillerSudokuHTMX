@@ -17,25 +17,55 @@ Goal is that this has to work as well as or better than the iOS app that I use, 
 
 ## Getting Started
 
-1. Install dependencies:
-   ```sh
-   npm install
-   ```
-2. Start the development server:
-   ```sh
-   npm run dev
-   ```
+This project is now a Django + HTMX web app (no Vite, no Node.js build required).
 
-## Features
-- Enter final numbers or notes in each cell
-- Notes are shown as small numbers in a 3x3 grid
-- Only one final number per cell; entering it clears notes
-- Killer Sudoku cage and grid styling
+### Prerequisites
+- Python 3.10+
+- pip
+- (Recommended) virtualenv
 
-## Tech Stack
-- Vite
-- HTMX
-- Vanilla JavaScript
+### Installation
+
+1. Clone the repository:
+   ```sh
+   git clone <your-repo-url>
+   cd <repo-folder>
+   ```
+2. Create and activate a virtual environment:
+   ```sh
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+3. Install Python dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+   (If `requirements.txt` is missing, install Django and django-htmx:)
+   ```sh
+   pip install django django-htmx
+   ```
+4. Run database migrations:
+   ```sh
+   cd src/backend
+   python manage.py migrate
+   ```
+5. Start the development server:
+   ```sh
+   python manage.py runserver
+   ```
+6. Open your browser to [http://localhost:8000/](http://localhost:8000/)
+
+### Tech Stack
+- Django (backend, session, templates, static files)
+- HTMX (frontend interactivity)
+- SQLite (default Django DB)
+- Vanilla CSS (no Vite, no Node.js build)
+
+### Development Notes
+- All frontend code is served as Django static files.
+- No Vite or Node.js build step is required.
+- To add new JS/CSS, place files in `src/backend/static/js/` or `src/backend/static/css/`.
+- To add new templates, use `src/backend/sudoku/templates/sudoku/`.
 
 ---
 Replace this README with more details as you build your app.
