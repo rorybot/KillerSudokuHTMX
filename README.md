@@ -25,7 +25,7 @@ Goal is that this has to work as well as or better than the iOS app that I use, 
 
 ## Getting Started
 
-This project is now a Django + HTMX web app (no Vite, no Node.js build required).
+This project is now a Django + HTMX web app with a standard python build process.
 
 ### Prerequisites
 - Python 3.10+
@@ -67,13 +67,5 @@ This project is now a Django + HTMX web app (no Vite, no Node.js build required)
 - Django (backend, session, templates, static files)
 - HTMX (frontend interactivity)
 - SQLite (default Django DB)
-- Vanilla CSS (no Vite, no Node.js build)
-
-### Development Notes
-- All frontend code is served as Django static files.
-- No Vite or Node.js build step is required.
-- To add new JS/CSS, place files in `src/backend/static/js/` or `src/backend/static/css/`.
-- To add new templates, use `src/backend/sudoku/templates/sudoku/`.
-
----
-Replace this README with more details as you build your app.
+- Vanilla CSS
+- Vanilla JS (no package.json to be found here)
