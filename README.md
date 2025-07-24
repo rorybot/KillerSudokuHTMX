@@ -1,6 +1,14 @@
 # Killer Sudoku HTMX App
 
-I play a lot of Killer Sudoku when I'm bored, to pass the time. There's one good iOS app, but it bombards you with annoyings ads. I just wanted one of my own that I can customize and use as I like, hopefully importing some harder puzzles too. 
+<details>
+  <summary>I play a lot of Killer Sudoku when I'm bored, to pass the time. There's one good iOS app, but it bombards you with annoyings ads...</summary>
+  
+<img width="2880" height="1694" alt="image" src="https://github.com/user-attachments/assets/cd6fbaa0-93fd-41ff-97c5-af0d68913a1a" />
+  
+</details>
+
+
+ I just wanted one of my own that I can customize and use as I like, hopefully importing some harder puzzles too. 
 
 I've been curious about HTMX for a while, been following the horse-headed man on Twitter and wanted to shake up my thinking. I'm a React dev, and I wanted to try throwing that all out the window and going with their [Hypermedia-first approach](https://htmx.org/essays/hypermedia-friendly-scripting/#prime_directive)
 
