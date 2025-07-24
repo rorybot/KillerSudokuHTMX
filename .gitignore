@@ -15,8 +15,10 @@ dist-ssr
 # Python/Django
 venv/
 db.sqlite3
-__pycache__/
+
+# Python bytecode
 *.pyc
+__pycache__/
 
 # Editor directories and files
 .vscode/*
