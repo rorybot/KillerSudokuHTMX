@@ -1,12 +1,29 @@
 /* This is a copy of your Vite Sudoku grid styles for Django static files. */
 
 :root {
+  --color-bg: #f8f8f8;
+  --color-text: rgba(34, 34, 34, 0.87);
+  --color-border: #246cff;
+  --color-cell-border: #bbb;
+  --color-cell-bg: #fff;
+  --color-selected: #f7df1e;
+  /* --color-selected-focus: #246cff; */
+  --color-selected-focus: #f7df1e;
+  --color-final: #222;
+  --color-note: #888;
+  --color-btn-bg: #fff;
+  --color-btn-border: #646cff;
+  --color-btn-hover-bg: #646cff;
+  --color-btn-hover-text: #fff;
+}
+
+:root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
-  color: rgba(34, 34, 34, 0.87);
-  background-color: #f8f8f8;
+  color: var(--color-text);
+  background-color: var(--color-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -17,7 +34,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #f8f8f8;
+  background: var(--color-bg);
 }
 
 .ks-container {
@@ -42,14 +59,14 @@ body {
   padding: 0.5em 1.2em;
   border-radius: 1.5em;
   border: none;
-  background: #646cff;
-  color: #fff;
+  background: var(--color-btn-border);
+  color: var(--color-btn-hover-text);
   cursor: pointer;
   transition: background 0.2s;
 }
 #toggle-mode[aria-pressed="true"] {
-  background: #f7df1e;
-  color: #222;
+  background: var(--color-selected);
+  color: var(--color-final);
 }
 
 .ks-grid {
@@ -58,8 +75,8 @@ body {
   width: 100%;
   max-width: 420px;
   aspect-ratio: 1/1;
-  background: #222;
-  border: 3px solid #246cff;
+  background: var(--color-final);
+  border: 3px solid var(--color-border);
   border-radius: 0.5em;
   box-shadow: 0 2px 12px #0002;
 }
@@ -71,8 +88,8 @@ body {
 }
 
 .ks-cell {
-  background: #fff;
-  border: 1px solid #bbb;
+  background: var(--color-cell-bg);
+  border: 1px solid var(--color-cell-border);
   box-sizing: border-box;
   aspect-ratio: 1/1;
   position: relative;
@@ -82,24 +99,24 @@ body {
 }
 
 .ks-row:nth-child(3n) .ks-cell {
-  border-bottom: 3px solid #246cff;
+  border-bottom: 3px solid var(--color-border);
 }
 .ks-cell:nth-child(3n) {
-  border-right: 3px solid #246cff;
+  border-right: 3px solid var(--color-border);
 }
 .ks-row:first-child .ks-cell {
-  border-top: 3px solid #246cff;
+  border-top: 3px solid var(--color-border);
 }
 .ks-cell:first-child {
-  border-left: 3px solid #246cff;
+  border-left: 3px solid var(--color-border);
 }
 
 .ks-cell-selected {
-  outline: 3px solid #f7df1e;
+  outline: 3px solid var(--color-selected);
   z-index: 2;
 }
 .ks-cell:focus.ks-cell-selected {
-  outline: 2px solid #246cff;
+  outline: 2px solid var(--color-selected-focus);
   z-index: 2;
 }
 .ks-final {
@@ -109,7 +126,7 @@ body {
   transform: translate(-50%, -50%);
   font-size: 2.2em;
   font-weight: 600;
-  color: #222;
+  color: var(--color-final);
   pointer-events: none;
 }
 .ks-notes {
@@ -124,7 +141,7 @@ body {
   font-size: 0.6em;
 }
 .ks-note {
-  color: #888;
+  color: var(--color-note);
   text-align: center;
   vertical-align: middle;
   line-height: 1.2em;
@@ -169,9 +186,9 @@ body {
 .ks-num-btn {
   width: 3em;
   height: 3em;
-  border: 2px solid #646cff;
-  background: #fff;
-  color: #646cff;
+  border: 2px solid var(--color-btn-border);
+  background: var(--color-btn-bg);
+  color: var(--color-btn-border);
   font-size: 1.2em;
   font-weight: 600;
   border-radius: 0.5em;
@@ -180,11 +197,11 @@ body {
 }
 
 .ks-num-btn:hover {
-  background: #646cff;
-  color: #fff;
+  background: var(--color-btn-hover-bg);
+  color: var(--color-btn-hover-text);
 }
 
-.cage-top { border-top: 3px solid #246cff !important; }
-.cage-left { border-left: 3px solid #246cff !important; }
-.cage-bottom { border-bottom: 3px solid #246cff !important; }
-.cage-right { border-right: 3px solid #246cff !important; }
+.cage-top { border-top: 3px solid var(--color-border) !important; }
+.cage-left { border-left: 3px solid var(--color-border) !important; }
+.cage-bottom { border-bottom: 3px solid var(--color-border) !important; }
+.cage-right { border-right: 3px solid var(--color-border) !important; }
