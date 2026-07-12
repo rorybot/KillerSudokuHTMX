@@ -39,13 +39,49 @@ function queueKeyboardRequest(path, values) {
     });
 }
 
+function moveFocusImmediately(direction) {
+  const selected = document.querySelector('.ks-cell-selected');
+  if (!selected) return;
+  const offsets = {up: [-1, 0], down: [1, 0], left: [0, -1], right: [0, 1]};
+  const [dr, dc] = offsets[direction];
+  const row = (Number(selected.dataset.row) + dr + 9) % 9;
+  const col = (Number(selected.dataset.col) + dc + 9) % 9;
+  const next = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+  if (!next) return;
+
+  const cage = next.dataset.cage;
+  document.querySelectorAll('.ks-cell-selected').forEach((cell) => {
+    cell.classList.remove('ks-cell-selected');
+    cell.setAttribute('aria-selected', 'false');
+  });
+  document.querySelectorAll('.ks-cage-active').forEach((cell) => cell.classList.remove('ks-cage-active'));
+  document.querySelectorAll(`[data-cage="${cage}"]`).forEach((cell) => cell.classList.add('ks-cage-active'));
+  document.querySelectorAll('.cage-top-active, .cage-left-active').forEach((cell) => {
+    cell.classList.remove('cage-top-active', 'cage-left-active');
+  });
+  document.querySelectorAll('.cage-top').forEach((cell) => {
+    const above = document.querySelector(`[data-row="${Number(cell.dataset.row) - 1}"][data-col="${cell.dataset.col}"]`);
+    if (cell.dataset.cage === cage || above?.dataset.cage === cage) cell.classList.add('cage-top-active');
+  });
+  document.querySelectorAll('.cage-left').forEach((cell) => {
+    const left = document.querySelector(`[data-row="${cell.dataset.row}"][data-col="${Number(cell.dataset.col) - 1}"]`);
+    if (cell.dataset.cage === cage || left?.dataset.cage === cage) cell.classList.add('cage-left-active');
+  });
+  next.classList.add('ks-cell-selected');
+  next.setAttribute('aria-selected', 'true');
+  next.focus({preventScroll: true});
+}
+
 document.addEventListener('keydown', (event) => {
   if (event.ctrlKey || event.metaKey || event.altKey) return;
   const directions = {ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right'};
   let path, values;
   if (/^[1-9]$/.test(event.key)) { path = '/enter/'; values = {num: event.key}; }
   else if (event.key === 'Backspace' || event.key === 'Delete') path = '/clear/';
-  else if (directions[event.key]) path = `/move/${directions[event.key]}/`;
+  else if (directions[event.key]) {
+    moveFocusImmediately(directions[event.key]);
+    path = `/move/${directions[event.key]}/`;
+  }
   else return;
   event.preventDefault();
   queueKeyboardRequest(path, values);
