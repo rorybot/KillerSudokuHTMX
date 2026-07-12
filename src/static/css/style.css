@@ -12,6 +12,7 @@
   --accent: #b85f27;
   --accent-strong: #91441e;
   --accent-soft: #f1c89f;
+  --cage-glow: rgba(216, 126, 61, 0.62);
   --note: #87766a;
   --shadow: rgba(75, 51, 34, 0.16);
 }
@@ -29,6 +30,7 @@
   --accent: #c8783f;
   --accent-strong: #e09559;
   --accent-soft: #65452f;
+  --cage-glow: rgba(224, 149, 89, 0.68);
   --note: #b49d89;
   --shadow: rgba(0, 0, 0, 0.28);
 }
@@ -147,7 +149,7 @@ button:focus-visible, select:focus-visible { outline: 3px solid var(--accent-sof
   outline: none;
 }
 
-.ks-cell-selected { z-index: 3; box-shadow: inset 0 0 0 3px var(--accent); background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface-raised)); }
+.ks-cell-selected { z-index: 3; box-shadow: inset 0 0 0 3px var(--accent); background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface-raised)); }
 .ks-cell:focus-visible { z-index: 4; box-shadow: inset 0 0 0 3px var(--accent-strong); }
 
 .ks-final {
@@ -172,6 +174,16 @@ button:focus-visible, select:focus-visible { outline: 3px solid var(--accent-sof
   pointer-events: none;
 }
 
+.ks-cage-active .ks-cage-sum {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, #fff 72%, var(--accent-strong));
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  -webkit-text-stroke: 0.35px var(--accent-strong);
+  text-shadow: 0 0 2px var(--accent-strong), 0 1px 3px var(--shadow);
+}
+
 .ks-notes {
   position: absolute;
   inset: 0;
@@ -187,6 +199,15 @@ button:focus-visible, select:focus-visible { outline: 3px solid var(--accent-sof
 
 .cage-top { border-top: 2px dotted var(--cage); }
 .cage-left { border-left: 2px dotted var(--cage); }
+.cage-top-active::before,
+.cage-left-active::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+.cage-top-active::before { top: -2px; right: 0; left: 0; border-top: 2px dotted var(--accent-strong); filter: drop-shadow(0 0 3px var(--cage-glow)); }
+.cage-left-active::after { top: 0; bottom: 0; left: -2px; border-left: 2px dotted var(--accent-strong); filter: drop-shadow(0 0 3px var(--cage-glow)); }
 
 /* Box boundaries always win over cage and cell boundaries. */
 .ks-row:nth-child(3n) .ks-cell { border-bottom: 4px solid var(--grid) !important; }

@@ -63,6 +63,7 @@ def cage_layout(cages):
                     classes.append(f"cage-{name}")
             layout[row][col] = {
                 "classes": " ".join(classes),
+                "cage_index": index,
                 "sum": cage["sum"] if (row, col) == first else None,
             }
     return layout
@@ -112,16 +113,31 @@ def legal_numbers(grid, selected, cages):
 
 def context(grid, selected, note_mode, cages, difficulty, game_status, solution):
     layout = cage_layout(cages)
+    selected_cage = layout[selected[0]][selected[1]]["cage_index"]
     rows = []
     for row in range(SIZE):
         rendered_row = []
         for col in range(SIZE):
+            active_boundaries = []
+            cell_layout = layout[row][col]
+            if "cage-top" in cell_layout["classes"] and (
+                cell_layout["cage_index"] == selected_cage
+                or layout[row - 1][col]["cage_index"] == selected_cage
+            ):
+                active_boundaries.append("cage-top-active")
+            if "cage-left" in cell_layout["classes"] and (
+                cell_layout["cage_index"] == selected_cage
+                or layout[row][col - 1]["cage_index"] == selected_cage
+            ):
+                active_boundaries.append("cage-left-active")
             rendered_row.append(
                 {
                     **grid[row][col],
-                    **layout[row][col],
+                    **cell_layout,
                     "row": row,
                     "col": col,
+                    "active_cage": layout[row][col]["cage_index"] == selected_cage,
+                    "active_boundaries": " ".join(active_boundaries),
                 }
             )
         rows.append(rendered_row)

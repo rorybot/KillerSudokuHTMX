@@ -319,6 +319,15 @@ class KillerGameTests(SudokuTestCase):
         self.assertContains(response, 'class="ks-cage-sum">45</span>', count=9)
         self.assertContains(response, "cage-top")
 
+    def test_selected_cage_is_marked_active(self):
+        response = self.client.get(reverse("sudoku_grid"))
+        selected_cage = next(
+            cage for cage in self.state["cages"] if [0, 0] in cage["cells"]
+        )
+        self.assertContains(response, "ks-cage-active", count=len(selected_cage["cells"]))
+        self.assertContains(response, 'data-row="0" data-col="0"')
+        self.assertContains(response, "cage-top-active")
+
     def test_conflicting_number_is_disabled_and_rejected_by_server(self):
         self.set_cell(0, 1, final=5)
         response = self.post("select_cell", args=[0, 0])
