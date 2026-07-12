@@ -9,4 +9,5 @@ urlpatterns = [
     path('clear/', views.clear_cell, name='clear_cell'),
     path('toggle_note_mode/', views.toggle_note_mode, name='toggle_note_mode'),
     path('reset/', views.reset_grid, name='reset_grid'),
+    path('new/', views.new_game, name='new_game'),
 ]

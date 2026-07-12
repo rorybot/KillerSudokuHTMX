@@ -1,6 +1,6 @@
 # Sudoku HTMX
 
-A lightweight, session-backed Sudoku board built with Django, HTMX, and vanilla CSS/JavaScript. It supports keyboard and touch input, final numbers, 3x3 pencil notes, wraparound arrow navigation, clearing/resetting, and automatic note removal from row, column, and box peers.
+A lightweight, session-backed Killer Sudoku game built with Django, HTMX, and vanilla CSS/JavaScript. It generates unique puzzles at three difficulty levels, renders connected sum cages, prevents illegal row/column/box/cage entries, and recognizes completed games.
 
 ## Run locally
 
@@ -36,10 +36,15 @@ Open http://127.0.0.1:8000/. Each browser session has its own board.
 
 ## Controls
 
-- Click/tap a cell, then use the number pad.
+- Choose Easy, Medium, or Hard and select **New game** to generate a puzzle.
+- Click/tap a cell, then use the number pad. Numbers that violate the current row, column, box, or cage are disabled.
 - Keyboard: `1`-`9`, arrow keys, `Backspace`, or `Delete`.
 - Turn **Notes on** to toggle pencil marks. Entering a final number removes that note from every peer in its row, column, and 3x3 box.
 - Enter the same final number twice to clear it, or use the clear button.
+- Use **Restart** to clear entries without changing the puzzle.
+- Use **Moonlit** for a persistent, muted brown-and-orange dark theme.
+
+Each dotted cage has a total in its top-left corner. Digits cannot repeat in a cage, and the cage's values must add to that total. Every generated puzzle uses only multi-cell cages and is verified to have exactly one solution.
 
 ## Test
 

@@ -14,10 +14,13 @@ dist-ssr
 
 # Python/Django
 venv/
+.venv/
 db.sqlite3
+.coverage
+htmlcov/
 
 # Python bytecode
-*.pyc
+*.py[cod]
 __pycache__/
 
 # Editor directories and files

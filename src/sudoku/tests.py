@@ -1,7 +1,16 @@
+import random
+from copy import deepcopy
+
 from django.test import Client, SimpleTestCase, TestCase
 from django.urls import reverse
 
-from .views import SIZE, peers
+from .generator import (
+    DIFFICULTIES,
+    count_solutions,
+    generate_puzzle,
+    generate_solution,
+)
+from .views import SIZE, legal_numbers, peers
 
 
 MUTATING_URLS = (
@@ -11,12 +20,21 @@ MUTATING_URLS = (
     ("clear_cell", None),
     ("toggle_note_mode", None),
     ("reset_grid", None),
+    ("new_game", None),
 )
 
 
 class SudokuTestCase(TestCase):
     def setUp(self):
         self.client.get(reverse("sudoku_grid"))
+        solution = [[(row * 3 + row // 3 + col) % 9 + 1 for col in range(9)] for row in range(9)]
+        session = self.client.session
+        session["solution"] = solution
+        session["cages"] = [
+            {"cells": [[row, col] for col in range(9)], "sum": 45}
+            for row in range(9)
+        ]
+        session.save()
 
     @property
     def state(self):
@@ -56,7 +74,9 @@ class SudokuPageTests(SudokuTestCase):
         self.assertContains(response, 'role="gridcell"', count=81)
         self.assertContains(response, 'aria-selected="true"', count=1)
         self.assertContains(response, "Notes off")
-        self.assertContains(response, "New board")
+        self.assertContains(response, "New game")
+        self.assertContains(response, "Killer Sudoku")
+        self.assertContains(response, 'id="theme-toggle"')
 
     def test_board_contains_htmx_contract_and_csrf_header(self):
         response = self.client.get(reverse("sudoku_grid"))
@@ -66,6 +86,8 @@ class SudokuPageTests(SudokuTestCase):
         self.assertContains(response, 'hx-post="/clear/"')
         self.assertContains(response, 'hx-post="/toggle_note_mode/"')
         self.assertContains(response, 'hx-post="/reset/"')
+        self.assertContains(response, 'hx-post="/new/"')
+        self.assertContains(response, 'aria-label="Puzzle difficulty"')
 
     def test_existing_session_state_is_rendered_without_reinitialization(self):
         self.set_cell(3, 4, final=8)
@@ -78,7 +100,8 @@ class SudokuPageTests(SudokuTestCase):
 
         self.assertContains(response, '<span class="ks-final">8</span>', html=True)
         self.assertContains(response, "Notes on")
-        self.assertContains(response, 'id="cell-3-4" class="ks-cell ks-cell-selected"')
+        self.assertContains(response, 'id="cell-3-4"')
+        self.assertContains(response, "ks-cell-selected")
         self.assertEqual(self.state["selected"], [3, 4])
 
 
@@ -110,7 +133,8 @@ class SelectionAndMovementTests(SudokuTestCase):
     def test_select_cell_updates_session_and_rendered_selection(self):
         response = self.post("select_cell", args=[6, 7])
         self.assertEqual(self.state["selected"], [6, 7])
-        self.assertContains(response, 'id="cell-6-7" class="ks-cell ks-cell-selected"')
+        self.assertContains(response, 'id="cell-6-7"')
+        self.assertContains(response, "ks-cell-selected")
         self.assertContains(response, 'aria-selected="true"', count=1)
 
     def test_each_direction_moves_one_cell(self):
@@ -243,7 +267,101 @@ class ClearAndResetTests(SudokuTestCase):
                 for cell in row
             )
         )
-        self.assertContains(response, 'id="cell-0-0" class="ks-cell ks-cell-selected"')
+        self.assertContains(response, 'id="cell-0-0"')
+        self.assertContains(response, "ks-cell-selected")
+
+
+class KillerGameTests(SudokuTestCase):
+    def test_game_state_contains_solution_cages_and_difficulty(self):
+        state = self.state
+        self.assertEqual(state["difficulty"], "medium")
+        self.assertEqual(state["game_status"], "playing")
+        self.assertEqual(
+            {tuple(cell) for cage in state["cages"] for cell in cage["cells"]},
+            {(row, col) for row in range(9) for col in range(9)},
+        )
+        for row in state["solution"]:
+            self.assertEqual(set(row), set(range(1, 10)))
+
+    def test_new_game_uses_selected_difficulty_and_replaces_puzzle(self):
+        old_solution = deepcopy(self.state["solution"])
+
+        response = self.post("new_game", {"difficulty": "hard"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.state["difficulty"], "hard")
+        self.assertNotEqual(self.state["solution"], old_solution)
+        self.assertContains(response, '<option value="hard" selected>Hard</option>')
+        self.assertTrue(
+            all(
+                cell == {"final": None, "notes": []}
+                for row in self.state["grid"]
+                for cell in row
+            )
+        )
+
+    def test_new_game_rejects_unknown_difficulty_without_replacing_puzzle(self):
+        old_solution = deepcopy(self.state["solution"])
+        response = self.post("new_game", {"difficulty": "impossible"})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.state["solution"], old_solution)
+
+    def test_restart_preserves_current_puzzle(self):
+        solution = deepcopy(self.state["solution"])
+        cages = deepcopy(self.state["cages"])
+        self.post("enter_number", {"num": "1"})
+        self.post("reset_grid")
+        self.assertEqual(self.state["solution"], solution)
+        self.assertEqual(self.state["cages"], cages)
+
+    def test_cage_totals_and_boundaries_are_rendered(self):
+        response = self.client.get(reverse("sudoku_grid"))
+        self.assertContains(response, 'class="ks-cage-sum">45</span>', count=9)
+        self.assertContains(response, "cage-top")
+
+    def test_conflicting_number_is_disabled_and_rejected_by_server(self):
+        self.set_cell(0, 1, final=5)
+        response = self.post("select_cell", args=[0, 0])
+        self.assertContains(response, 'disabled aria-label="5 cannot be played in this cell"')
+
+        self.post("enter_number", {"num": "5"})
+        self.assertIsNone(self.state["grid"][0][0]["final"])
+
+    def test_cage_sum_limits_available_numbers(self):
+        session = self.client.session
+        session["cages"] = [
+            {"cells": [[0, 0], [0, 1]], "sum": 3},
+            {"cells": [[0, col] for col in range(2, 9)], "sum": 42},
+            *[
+                {"cells": [[row, col] for col in range(9)], "sum": 45}
+                for row in range(1, 9)
+            ],
+        ]
+        session.save()
+
+        self.assertEqual(legal_numbers(self.state["grid"], [0, 0], self.state["cages"]), {1, 2})
+        response = self.post("select_cell", args=[0, 0])
+        for number in range(3, 10):
+            self.assertContains(
+                response,
+                f'disabled aria-label="{number} cannot be played in this cell"',
+            )
+
+    def test_completing_solution_shows_success_message(self):
+        session = self.client.session
+        solution = session["solution"]
+        session["grid"] = [
+            [{"final": solution[row][col], "notes": []} for col in range(9)]
+            for row in range(9)
+        ]
+        session["grid"][0][0]["final"] = None
+        session["selected"] = [0, 0]
+        session.save()
+
+        response = self.post("enter_number", {"num": str(solution[0][0])})
+
+        self.assertEqual(self.state["game_status"], "won")
+        self.assertContains(response, "Puzzle complete!")
 
 
 class SecurityAndIsolationTests(TestCase):
@@ -273,10 +391,11 @@ class SecurityAndIsolationTests(TestCase):
         first.get(reverse("sudoku_grid"))
         second.get(reverse("sudoku_grid"))
 
-        first.post(reverse("enter_number"), {"num": "7"})
+        number = first.session["solution"][0][0]
+        first.post(reverse("enter_number"), {"num": str(number)})
         first.post(reverse("toggle_note_mode"))
 
-        self.assertEqual(first.session["grid"][0][0]["final"], 7)
+        self.assertEqual(first.session["grid"][0][0]["final"], number)
         self.assertTrue(first.session["note_mode"])
         self.assertIsNone(second.session["grid"][0][0]["final"])
         self.assertFalse(second.session["note_mode"])
@@ -303,3 +422,64 @@ class PeerCalculationTests(SimpleTestCase):
         for row, col in ((0, 0), (4, 4), (8, 3)):
             for peer in peers(row, col):
                 self.assertIn((row, col), peers(*peer))
+
+
+class GeneratorTests(SimpleTestCase):
+    def test_generated_solution_obeys_sudoku_rules(self):
+        solution = generate_solution(random.Random(7))
+        expected = set(range(1, 10))
+        for row in solution:
+            self.assertEqual(set(row), expected)
+        for col in range(9):
+            self.assertEqual({solution[row][col] for row in range(9)}, expected)
+        for box_row in range(0, 9, 3):
+            for box_col in range(0, 9, 3):
+                self.assertEqual(
+                    {
+                        solution[row][col]
+                        for row in range(box_row, box_row + 3)
+                        for col in range(box_col, box_col + 3)
+                    },
+                    expected,
+                )
+
+    def test_generated_cages_cover_grid_once_and_match_solution(self):
+        puzzle = generate_puzzle("medium", random.Random(11))
+        cells = [tuple(cell) for cage in puzzle["cages"] for cell in cage["cells"]]
+        self.assertEqual(len(cells), 81)
+        self.assertEqual(len(set(cells)), 81)
+        for cage in puzzle["cages"]:
+            values = [puzzle["solution"][row][col] for row, col in cage["cells"]]
+            self.assertEqual(sum(values), cage["sum"])
+            self.assertEqual(len(values), len(set(values)))
+            self.assertGreaterEqual(len(values), 2)
+            self.assertTrue(self._is_connected(cage["cells"]))
+
+    def test_cage_constraints_have_exactly_one_solution(self):
+        puzzle = generate_puzzle("easy", random.Random(1))
+        self.assertEqual(count_solutions(puzzle["cages"]), 1)
+
+    def test_difficulties_have_progressively_fewer_larger_cages(self):
+        cage_counts = []
+        for difficulty in DIFFICULTIES:
+            puzzle = generate_puzzle(difficulty, random.Random(17))
+            cage_counts.append(len(puzzle["cages"]))
+            self.assertFalse(any(len(cage["cells"]) == 1 for cage in puzzle["cages"]))
+        self.assertGreater(cage_counts[0], cage_counts[1])
+        self.assertGreater(cage_counts[1], cage_counts[2])
+
+    @staticmethod
+    def _is_connected(cells):
+        remaining = {tuple(cell) for cell in cells}
+        pending = [remaining.pop()]
+        while pending:
+            row, col = pending.pop()
+            neighbours = {
+                (row - 1, col),
+                (row + 1, col),
+                (row, col - 1),
+                (row, col + 1),
+            } & remaining
+            remaining -= neighbours
+            pending.extend(neighbours)
+        return not remaining

@@ -1,12 +1,24 @@
 <section id="sudoku-app" data-note-mode="{{ note_mode|yesno:'true,false' }}" hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>
     <div class="ks-controls">
-        <button class="mode-button" aria-pressed="{{ note_mode|yesno:'true,false' }}" hx-post="{% url 'toggle_note_mode' %}" hx-target="#sudoku-app" hx-swap="outerHTML">{% if note_mode %}Notes on{% else %}Notes off{% endif %}</button>
-        <button hx-post="{% url 'reset_grid' %}" hx-target="#sudoku-app" hx-swap="outerHTML" hx-confirm="Clear the whole board?">New board</button>
+        <label class="difficulty-control">Difficulty
+            <select id="difficulty" name="difficulty" aria-label="Puzzle difficulty">
+                {% for option in difficulties %}<option value="{{ option }}"{% if option == difficulty %} selected{% endif %}>{{ option|title }}</option>{% endfor %}
+            </select>
+        </label>
+        <button class="primary-action" hx-post="{% url 'new_game' %}" hx-include="#difficulty" hx-target="#sudoku-app" hx-swap="outerHTML" hx-confirm="Start a new puzzle?">New game</button>
     </div>
+    <div class="game-toolbar">
+        <span class="difficulty-badge">{{ difficulty|title }}</span>
+        <div class="toolbar-actions">
+            <button class="mode-button" aria-pressed="{{ note_mode|yesno:'true,false' }}" hx-post="{% url 'toggle_note_mode' %}" hx-target="#sudoku-app" hx-swap="outerHTML">{% if note_mode %}Notes on{% else %}Notes off{% endif %}</button>
+            <button hx-post="{% url 'reset_grid' %}" hx-target="#sudoku-app" hx-swap="outerHTML" hx-confirm="Restart this puzzle?">Restart</button>
+        </div>
+    </div>
+    {% if game_status == 'won' %}<div class="game-message" role="status"><strong>Puzzle complete!</strong> Every row, column, box, and cage checks out.</div>{% endif %}
     {% include 'sudoku/grid_inner.html' %}
     <div class="ks-numpad" aria-label="Number pad">
-        {% for number in notes_range %}<button class="ks-num-btn" hx-post="{% url 'enter_number' %}" hx-vals='{"num":"{{ number }}"}' hx-target="#sudoku-app" hx-swap="outerHTML">{{ number }}</button>{% endfor %}
+        {% for number in notes_range %}<button class="ks-num-btn" hx-post="{% url 'enter_number' %}" hx-vals='{"num":"{{ number }}"}' hx-target="#sudoku-app" hx-swap="outerHTML"{% if number not in available_numbers %} disabled aria-label="{{ number }} cannot be played in this cell"{% endif %}>{{ number }}</button>{% endfor %}
         <button class="ks-num-btn clear-button" aria-label="Clear cell" hx-post="{% url 'clear_cell' %}" hx-target="#sudoku-app" hx-swap="outerHTML">⌫</button>
     </div>
-    <p class="hint">Use 1–9, arrow keys, and Backspace—or tap the controls.</p>
+    <p class="hint">Fill every row, column, and 3×3 box with 1–9. Digits cannot repeat within a cage and must add up to its corner total.</p>
 </section>

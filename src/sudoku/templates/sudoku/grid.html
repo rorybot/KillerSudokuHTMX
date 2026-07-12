@@ -4,10 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sudoku</title>
+    <title>Killer Sudoku</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script defer src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script defer src="{% static 'js/sudoku.js' %}"></script>
 </head>
-<body><main class="ks-container"><h1>Sudoku</h1>{% include 'sudoku/board.html' %}</main></body>
+<body>
+<main class="ks-container">
+    <header class="page-header">
+        <div><p class="eyebrow">Cage-sum logic</p><h1>Killer Sudoku</h1></div>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Use muted dark theme">Moonlit</button>
+    </header>
+    {% include 'sudoku/board.html' %}
+</main>
+</body>
 </html>

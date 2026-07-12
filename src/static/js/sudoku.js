@@ -1,5 +1,26 @@
 let keyboardRequestQueue = Promise.resolve();
 
+function setTheme(theme) {
+  const dark = theme === 'dark';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  const toggle = document.querySelector('#theme-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-pressed', String(dark));
+    toggle.setAttribute('aria-label', dark ? 'Use light theme' : 'Use muted dark theme');
+    toggle.textContent = dark ? 'Daylight' : 'Moonlit';
+  }
+}
+
+let savedTheme = 'light';
+try { savedTheme = localStorage.getItem('killer-sudoku-theme') || 'light'; } catch (_) {}
+setTheme(savedTheme);
+
+document.querySelector('#theme-toggle')?.addEventListener('click', () => {
+  const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  setTheme(nextTheme);
+  try { localStorage.setItem('killer-sudoku-theme', nextTheme); } catch (_) {}
+});
+
 function queueKeyboardRequest(path, values) {
   keyboardRequestQueue = keyboardRequestQueue
     .then(() => {
