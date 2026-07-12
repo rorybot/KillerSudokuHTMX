@@ -1,27 +1,7 @@
 {% load sudoku_extras %}
-<div class="ks-grid" role="grid" aria-label="Killer Sudoku Grid" 
-     hx-trigger="keydown[key>='1'&&key<='9'] from:body, keydown[Backspace] from:body, keydown[Delete] from:body" 
-     hx-get="/enter/" 
-     hx-vals='js:{"num": event.key}'
-     hx-target=".ks-grid" 
-     hx-swap="outerHTML">
-    {% for row_idx, row in grid|with_index %}
-    <div class="ks-row" role="row">
-        {% for col_idx, cell in row|with_index %}
-        <div id="cell-{{row_idx}}-{{col_idx}}"
-             class="ks-cell{% if selected.0 == row_idx and selected.1 == col_idx %} ks-cell-selected{% endif %}"
-             role="gridcell" tabindex="0"
-             hx-get="/select/{{ row_idx }}/{{ col_idx }}/" 
-             hx-target=".ks-grid" 
-             hx-swap="outerHTML"{% if selected.0 == row_idx and selected.1 == col_idx %} hx-focus="true"{% endif %}>
-            <div class="ks-final">{% if cell.final %}{{ cell.final }}{% endif %}</div>
-            <div class="ks-notes">
-                {% for n in notes_range %}
-                <span class="ks-note n{{n}}">{% if n in cell.notes %}{{n}}{% endif %}</span>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endfor %}
+<div class="ks-grid" role="grid" aria-label="Sudoku grid">
+{% for row_idx, row in grid|with_index %}<div class="ks-row" role="row">{% for col_idx, cell in row|with_index %}
+<button id="cell-{{ row_idx }}-{{ col_idx }}" class="ks-cell{% if selected.0 == row_idx and selected.1 == col_idx %} ks-cell-selected{% endif %}" role="gridcell" aria-label="Row {{ row_idx|add:1 }}, column {{ col_idx|add:1 }}" aria-selected="{% if selected.0 == row_idx and selected.1 == col_idx %}true{% else %}false{% endif %}" hx-post="{% url 'select_cell' row_idx col_idx %}" hx-target="#sudoku-app" hx-swap="outerHTML">
+{% if cell.final %}<span class="ks-final">{{ cell.final }}</span>{% else %}<span class="ks-notes">{% for n in notes_range %}<span class="ks-note">{% if n in cell.notes %}{{ n }}{% endif %}</span>{% endfor %}</span>{% endif %}</button>
+{% endfor %}</div>{% endfor %}
 </div>
