@@ -8,4 +8,5 @@ urlpatterns = [
     path('move/<str:direction>/', views.move_selection, name='move_selection'),
     path('clear/', views.clear_cell, name='clear_cell'),
     path('toggle_note_mode/', views.toggle_note_mode, name='toggle_note_mode'),
+    path('reset/', views.reset_grid, name='reset_grid'),
 ]

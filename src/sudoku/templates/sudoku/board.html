@@ -1,0 +1,12 @@
+<section id="sudoku-app" data-note-mode="{{ note_mode|yesno:'true,false' }}" hx-headers='{"X-CSRFToken":"{{ csrf_token }}"}'>
+    <div class="ks-controls">
+        <button class="mode-button" aria-pressed="{{ note_mode|yesno:'true,false' }}" hx-post="{% url 'toggle_note_mode' %}" hx-target="#sudoku-app" hx-swap="outerHTML">{% if note_mode %}Notes on{% else %}Notes off{% endif %}</button>
+        <button hx-post="{% url 'reset_grid' %}" hx-target="#sudoku-app" hx-swap="outerHTML" hx-confirm="Clear the whole board?">New board</button>
+    </div>
+    {% include 'sudoku/grid_inner.html' %}
+    <div class="ks-numpad" aria-label="Number pad">
+        {% for number in notes_range %}<button class="ks-num-btn" hx-post="{% url 'enter_number' %}" hx-vals='{"num":"{{ number }}"}' hx-target="#sudoku-app" hx-swap="outerHTML">{{ number }}</button>{% endfor %}
+        <button class="ks-num-btn clear-button" aria-label="Clear cell" hx-post="{% url 'clear_cell' %}" hx-target="#sudoku-app" hx-swap="outerHTML">⌫</button>
+    </div>
+    <p class="hint">Use 1–9, arrow keys, and Backspace—or tap the controls.</p>
+</section>
