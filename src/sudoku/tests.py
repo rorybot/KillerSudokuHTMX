@@ -85,6 +85,7 @@ class SudokuPageTests(SudokuTestCase):
         self.assertContains(response, 'hx-post="/enter/"', count=9)
         self.assertContains(response, 'hx-post="/clear/"')
         self.assertContains(response, 'hx-post="/toggle_note_mode/"')
+        self.assertContains(response, 'aria-keyshortcuts="N"')
         self.assertContains(response, 'hx-post="/reset/"')
         self.assertContains(response, 'hx-post="/new/"')
         self.assertContains(response, 'aria-label="Puzzle difficulty"')

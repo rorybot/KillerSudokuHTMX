@@ -78,6 +78,7 @@ document.addEventListener('keydown', (event) => {
   let path, values;
   if (/^[1-9]$/.test(event.key)) { path = '/enter/'; values = {num: event.key}; }
   else if (event.key === 'Backspace' || event.key === 'Delete') path = '/clear/';
+  else if (event.key.toLowerCase() === 'n') path = '/toggle_note_mode/';
   else if (directions[event.key]) {
     moveFocusImmediately(directions[event.key]);
     path = `/move/${directions[event.key]}/`;

@@ -10,7 +10,7 @@
     <div class="game-toolbar">
         <span class="difficulty-badge">{{ difficulty|title }}</span>
         <div class="toolbar-actions">
-            <button class="mode-button" aria-pressed="{{ note_mode|yesno:'true,false' }}" hx-post="{% url 'toggle_note_mode' %}" hx-target="#sudoku-app" hx-swap="outerHTML">{% if note_mode %}Notes on{% else %}Notes off{% endif %}</button>
+            <button class="mode-button" aria-pressed="{{ note_mode|yesno:'true,false' }}" aria-keyshortcuts="N" hx-post="{% url 'toggle_note_mode' %}" hx-target="#sudoku-app" hx-swap="outerHTML">{% if note_mode %}Notes on{% else %}Notes off{% endif %}</button>
             <button hx-post="{% url 'reset_grid' %}" hx-target="#sudoku-app" hx-swap="outerHTML" hx-confirm="Restart this puzzle?">Restart</button>
         </div>
     </div>
